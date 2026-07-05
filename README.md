@@ -66,6 +66,7 @@ API_URL=http://localhost:3333
 * Entre no projeto do frontend.
 * Instale: npm install.
 * Inicie: npm run dev.
+
 ## 🔑 Credenciais de Acesso (Teste)
 | Perfil            | Matrícula (Login) | Senha  |
 |-------------------|-------------------|--------|
