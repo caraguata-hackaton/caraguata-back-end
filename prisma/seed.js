@@ -39,7 +39,7 @@ async function main() {
     },
     update: {
       name: "Usuário Escola",
-      registration: "ESCOLA001",
+      registration: "12345",
       pass: passwordHash,
       role: "SCHOOL_USER",
       schoolId: school.id,
@@ -47,7 +47,7 @@ async function main() {
     create: {
       name: "Usuário Escola",
       email: "escola@teste.com",
-      registration: "ESCOLA001",
+      registration: "12345",
       pass: passwordHash,
       role: "SCHOOL_USER",
       schoolId: school.id,
@@ -56,19 +56,19 @@ async function main() {
 
   await prisma.user.upsert({
     where: {
-      email: "manager@teste.com",
+      email: "seduc@teste.com",
     },
     update: {
-      name: "Gestor de Chamados",
-      registration: "MANAGER001",
+      name: "Teste Seduc",
+      registration: "54321",
       pass: passwordHash,
       role: "MANAGER",
       schoolId: null,
     },
     create: {
-      name: "Gestor de Chamados",
-      email: "manager@teste.com",
-      registration: "MANAGER001",
+      name: "Teste Seduc",
+      email: "seduc@teste.com",
+      registration: "54321",
       pass: passwordHash,
       role: "MANAGER",
       schoolId: null,
@@ -76,8 +76,8 @@ async function main() {
   })
 
   console.log("Seed executado com sucesso!")
-  console.log("Usuário escola: escola@teste.com / 123456")
-  console.log("Manager: manager@teste.com / 123456")
+  console.log("Usuário escola: Matricula: 12345 / Senha: 123456")
+  console.log("Manager: Matricula: 54321 / Senha: 123456")
 }
 
 main()
