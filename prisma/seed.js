@@ -1,38 +1,54 @@
+import "dotenv/config"
 import bcrypt from "bcrypt"
+import { PrismaMariaDb } from "@prisma/adapter-mariadb"
 import { PrismaClient } from "../generated/prisma/client.ts"
 
-const prisma = new PrismaClient()
+const adapter = new PrismaMariaDb({
+  host: process.env.DATABASE_HOST,
+  user: process.env.DATABASE_USER,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE_NAME,
+  connectionLimit: 5,
+})
+
+const prisma = new PrismaClient({
+  adapter,
+})
 
 async function main() {
-  const passwordHash = await bcrypt.hash("12345678", 10)
+  const passwordHash = await bcrypt.hash("123456", 10)
 
-  const school = await prisma.school.upsert({
+  let school = await prisma.school.findFirst({
     where: {
       name: "EMEF Escola Teste",
     },
-    update: {},
-    create: {
-      name: "EMEF Escola Teste",
-      address: "Endereço de teste",
-    },
   })
+
+  if (!school) {
+    school = await prisma.school.create({
+      data: {
+        name: "EMEF Escola Teste",
+        address: "Endereço de teste",
+      },
+    })
+  }
 
   await prisma.user.upsert({
     where: {
       email: "escola@teste.com",
     },
     update: {
-      name: "Teste Escola",
-      registration: "123456",
-      password: passwordHash,
+      name: "Usuário Escola",
+      registration: "ESCOLA001",
+      pass: passwordHash,
       role: "SCHOOL_USER",
       schoolId: school.id,
     },
     create: {
-      name: "Teste Escola",
+      name: "Usuário Escola",
       email: "escola@teste.com",
-      registration: "12345",
-      password: passwordHash,
+      registration: "ESCOLA001",
+      pass: passwordHash,
       role: "SCHOOL_USER",
       schoolId: school.id,
     },
@@ -40,20 +56,20 @@ async function main() {
 
   await prisma.user.upsert({
     where: {
-      email: "seduc@teste.com",
+      email: "manager@teste.com",
     },
     update: {
-      name: "Teste Seduc",
-      registration: "54321",
-      password: passwordHash,
+      name: "Gestor de Chamados",
+      registration: "MANAGER001",
+      pass: passwordHash,
       role: "MANAGER",
       schoolId: null,
     },
     create: {
-      name: "Teste Seduc",
-      email: "seduc@teste.com",
-      registration: "54321",
-      password: passwordHash,
+      name: "Gestor de Chamados",
+      email: "manager@teste.com",
+      registration: "MANAGER001",
+      pass: passwordHash,
       role: "MANAGER",
       schoolId: null,
     },
