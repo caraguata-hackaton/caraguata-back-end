@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum UserRole {
+  ADMIN
+  TEACHER
+}
+
+model user {
+  id           Int      @id @default(autoincrement())
+  name         String   @db.VarChar(255)
+  email        String   @unique
+  pass         String   @db.VarChar(300)
+  registration String   @unique @db.VarChar(100)
+  role         UserRole @default(TEACHER)
+
+  schoolId Int?
+  school   school? @relation(fields: [schoolId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions session[]
+}
+
+model school {
+  id      Int     @id @default(autoincrement())
+  name    String
+  address String?
+
+  users user[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model session {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @unique @db.VarChar(500)
+  createdAt DateTime @default(now())
+
+  user user @relation(fields: [userId], references: [id])
+}
