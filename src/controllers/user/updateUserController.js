@@ -1,5 +1,6 @@
 import { updateUser, validateUser } from "../../models/userModel.js";
 import bcrypt from "bcrypt";
+import { getAuthenticatedUserContext } from '../../models/authContextModel.js'
 
 export async function updateUsersController(req, res, next){
     try{
@@ -12,6 +13,11 @@ export async function updateUsersController(req, res, next){
                 message: "Acesso negado. Você só pode atualizar seu próprio perfil."
             })
         }
+
+        const authenticatedUser = await getAuthenticatedUserContext(req.userId)
+        // Atualização de perfil não pode promover role nem trocar a escola do usuário.
+        user.role = authenticatedUser.role
+        user.schoolId = authenticatedUser.schoolId
 
         const {success, error, data: userValidated} = validateUser(user, { pass: true })
         if(!success){

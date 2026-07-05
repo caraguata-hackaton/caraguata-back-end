@@ -8,8 +8,31 @@ datasource db {
 }
 
 enum UserRole {
-  ADMIN
-  TEACHER
+  MANAGER
+  SCHOOL_USER
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketFieldType {
+  TEXT
+  TEXTAREA
+  NUMBER
+  BOOLEAN
+  SELECT
+  DATE
 }
 
 model user {
@@ -18,10 +41,12 @@ model user {
   email        String   @unique
   pass         String   @db.VarChar(300)
   registration String   @unique @db.VarChar(100)
-  role         UserRole @default(TEACHER)
+  role         UserRole @default(SCHOOL_USER)
 
   schoolId Int?
   school   school? @relation(fields: [schoolId], references: [id])
+
+  createdTickets Ticket[] @relation("TicketCreatedBy")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -34,10 +59,76 @@ model school {
   name    String
   address String?
 
-  users user[]
+  users   user[]
+  tickets Ticket[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Ticket {
+  id          Int            @id @default(autoincrement())
+  title       String
+  description String?        @db.Text
+  status      TicketStatus   @default(OPEN)
+  priority    TicketPriority @default(MEDIUM)
+
+  schoolId Int
+  school   school @relation(fields: [schoolId], references: [id])
+
+  categoryId Int
+  category   TicketCategory @relation(fields: [categoryId], references: [id])
+
+  createdById Int
+  createdBy   user @relation("TicketCreatedBy", fields: [createdById], references: [id])
+
+  dynamicFields Json?
+
+  estimatedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([schoolId])
+  @@index([schoolId, status])
+  @@index([schoolId, priority])
+  @@index([categoryId])
+  @@index([createdById])
+}
+
+model TicketCategory {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  description String?
+  active      Boolean @default(true)
+
+  fields  TicketField[]
+  tickets Ticket[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TicketField {
+  id Int @id @default(autoincrement())
+
+  categoryId Int
+  category   TicketCategory @relation(fields: [categoryId], references: [id])
+
+  name        String
+  label       String
+  type        TicketFieldType
+  required    Boolean         @default(false)
+  placeholder String?
+  order       Int             @default(0)
+
+  options Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([categoryId, name])
+  @@index([categoryId])
 }
 
 model session {

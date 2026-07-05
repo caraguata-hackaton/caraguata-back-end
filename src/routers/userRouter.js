@@ -5,10 +5,12 @@ import { updateUsersController } from '../controllers/user/updateUserController.
 import { deleteUsersController } from '../controllers/user/deleteUserController.js'
 import { authentication } from '../middlewares/authentication.js'
 import { getUserByIdController } from "../controllers/user/getUserByIdController.js";
+import {getMeController} from "../controllers/user/getMeController.js";
 
 const router = express.Router()
 
 router.get('/', getUsersController)
+router.get('/me',authentication, getMeController)
 router.get('/:id', getUserByIdController)
 router.post('/', createUsersController)
 router.put('/:id', authentication, updateUsersController)

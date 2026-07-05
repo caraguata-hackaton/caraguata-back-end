@@ -8,6 +8,8 @@ export const authentication = (req, res, next) => {
             return res.status(401).json({ message: "Token de autenticação não fornecido." })
         }
         const payload = jwt.verify(token, process.env.JWT_SECRET)
+        res.locals.userId = payload.id
+        // Mantido temporariamente para não quebrar controllers antigos.
         req.userId = payload.id
         next()
     } catch(error) {

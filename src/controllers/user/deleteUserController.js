@@ -1,17 +1,8 @@
-import {deleteUser, validateUser} from "../../models/userModel.js";
+import {deleteUser, validateUserId} from "../../models/userModel.js";
 
 export async function deleteUsersController(req, res, next) {
     try {
-        const id = req.params.id
-
-        const {success, error, data} = validateUser({id: +id}, {
-            name: true,
-            pass: true,
-            email: true,
-            role: true,
-            schoolId: true,
-            registration: true
-        })
+        const {success, error, data: id} = validateUserId(req.params.id)
 
         if (!success) {
             return res.status(400).json({
@@ -20,7 +11,7 @@ export async function deleteUsersController(req, res, next) {
             })
         }
 
-        const result = await deleteUser(data.id)
+        const result = await deleteUser(id)
 
         return res.json({
             message: "Usuário deletado com sucesso!",
@@ -31,6 +22,11 @@ export async function deleteUsersController(req, res, next) {
             console.log(error.message)
             return res.status(404).json({
                 message: `Usuário não encontrado para ser deletado.`
+            })
+        }
+        if (error.code === 'P2003') {
+            return res.status(409).json({
+                message: 'Usuário não pode ser deletado porque possui chamados vinculados.'
             })
         }
         next(error)
